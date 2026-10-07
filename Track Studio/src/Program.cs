@@ -50,7 +50,18 @@ namespace PartyStudio
             string programName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
 
             var wnd = new UIFramework.Framework(new MainWindow(argumentHandle), mode, asssemblyVersion, programName);
-            wnd.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+            //ExtractAssociatedIcon relies on shell32.dll and is Windows only
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                try
+                {
+                    wnd.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+                }
+                catch (Exception)
+                {
+                    //Icon extraction is cosmetic, never let it crash the application
+                }
+            }
             wnd.VSync = OpenTK.VSyncMode.On;
             wnd.Run();
         }
@@ -64,16 +75,16 @@ namespace PartyStudio
 
                 string date = DateTime.Now.ToFileTime().ToString();
                 Exception e = (Exception)args.ExceptionObject;
-                File.WriteAllText($"{Runtime.ExecutableDir}\\Logs\\CrashLog_{date}.txt", $"{e.Message}\n {e.StackTrace}");
+                File.WriteAllText(Path.Combine(Runtime.ExecutableDir, "Logs", $"CrashLog_{date}.txt"), $"{e.Message}\n {e.StackTrace}");
             }
         }
 
         static string GetRepoCompileDate(string folder)
         {
-            if (!File.Exists($"{folder}\\Version.txt"))
+            if (!File.Exists(Path.Combine(folder, "Version.txt")))
                 return "";
 
-            string[] versionInfo = File.ReadLines($"{folder}\\Version.txt").ToArray();
+            string[] versionInfo = File.ReadLines(Path.Combine(folder, "Version.txt")).ToArray();
             if (versionInfo.Length >= 3)
                 return $"{versionInfo[0]} Commit: {versionInfo[2]} Compile Date: {versionInfo[1]}";
 

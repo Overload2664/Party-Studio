@@ -203,27 +203,16 @@ namespace PartyStudio.GCN
             var encoded = surface.EncodedData; //Only need first mip level
             var palette = surface.PaletteData;
 
-            byte[] GetPalette(ushort[] paletteData)
-            {
-                if (paletteData.Length == 0) return new byte[0];
+            //Use the fully managed decoder. The native gctex_v13 library
+            //backing gctex.Decode is not shipped (notably on Linux) and
+            //throws DllNotFoundException here.
+            byte[] buffer = Decode_Gamecube.DecodeData(encoded, palette,
+                (uint)Width, (uint)Height, Format, PaletteFormat);
 
-                var mem = new MemoryStream();
-                using (var wr = new BinaryWriter(mem))
-                {
-                    for (int i = 0; i < paletteData.Length; i++)
-                    {
-                        wr.Write((byte)(paletteData[i] >> 8));
-                        wr.Write((byte)(paletteData[i] & 0xFF));
-                    }
-                }
-                return mem.ToArray();
-            }
+            //Managed decoder outputs BGRA byte order; callers expect RGBA.
+            BitmapExtension.ConvertBgraToRgba(buffer);
 
-            byte[] Buffer = gctex.Decode(encoded, (uint)Width, (uint)Height,
-                     (uint)Format, GetPalette(palette),
-                     (uint)PaletteFormat);
-
-            return Buffer;
+            return buffer;
         }
 
         /// <summary>

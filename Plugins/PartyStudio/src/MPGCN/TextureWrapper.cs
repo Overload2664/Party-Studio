@@ -273,6 +273,8 @@ namespace PartyStudio.GCN
                    tex.Name, (uint)tex.Width, (uint)tex.Height, (uint)HSFTexture.GcnFormat, (uint)tex.PaletteFormat, 1,
                    HSFTexture.ImageData, HSFTexture.PaletteData);
             }
+            //The native GCN decoder may be missing (see HsfTextureHelper).
+            HsfTextureHelper.EnsureUploaded(HSFTexture.RenderTexture, HSFTexture);
 
             Tag = new EditableTexture(HSFTexture);
 
@@ -344,6 +346,8 @@ namespace PartyStudio.GCN
                 Texture.RenderTexture.Dispose();
 
             Texture.RenderTexture = renderTex;
+            //The native GCN decoder may be missing (see HsfTextureHelper).
+            HsfTextureHelper.EnsureUploaded(Texture.RenderTexture, Texture);
         }
     }
 }
