@@ -1,4 +1,4 @@
-This is an attempt at getting the project to work on Linux, unfortunately it's vibe-coded as I have no knowledge of graphics and C#, use at your own risk.
+This is an attempt at getting the project to work on Linux, unfortunately the fixes are vibe-coded as I have no knowledge of graphics and C#, use at your own risk.
 
 # Party-Studio
 A board editor for MPSA and possibly older games in the future. 
